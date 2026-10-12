@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <fstream>
 
 using namespace std;
 using namespace std::chrono;
@@ -35,9 +36,7 @@ Matrix multiply_On3(Matrix A, Matrix B, int n) {
 }
 
 Matrix strassen(Matrix A, Matrix B, int n) {
-    if (n <= 64) { 
-        return multiply_On3(A, B, n);
-    }
+    if (n <= 64) return multiply_On3(A, B, n);
 
     int new_n = n / 2;
     Matrix a11 = initMatrix(new_n), a12 = initMatrix(new_n), a21 = initMatrix(new_n), a22 = initMatrix(new_n);
@@ -78,24 +77,27 @@ Matrix strassen(Matrix A, Matrix B, int n) {
 int main() {
     vector<int> test_cases = {64, 128, 256, 512};
     
-    cout << "--- Analisis Empirico Matrices ---\n";
+    ofstream file("resultados_matrices.txt");
+    file << "N,Tiempo_On3,Tiempo_Strassen\n";
+    
+    cout << "--- Ejecutando Matrices y guardando en txt ---\n";
     for (int n : test_cases) {
-        cout << "\nMatriz " << n << "x" << n << "\n";
-        Matrix A = initMatrix(n);
-        Matrix B = initMatrix(n);
+        Matrix A = initMatrix(n), B = initMatrix(n);
         for(int i=0; i<n; i++) for(int j=0; j<n; j++) { A[i][j] = rand()%10; B[i][j] = rand()%10; }
 
         auto start = high_resolution_clock::now();
         Matrix C1 = multiply_On3(A, B, n);
         auto stop = high_resolution_clock::now();
-        auto duration_On3 = duration_cast<milliseconds>(stop - start);
-        cout << "Tiempo O(n^3): \t\t" << duration_On3.count() << " milisegundos\n";
+        auto duration_On3 = duration_cast<milliseconds>(stop - start).count();
 
         start = high_resolution_clock::now();
         Matrix C2 = strassen(A, B, n);
         stop = high_resolution_clock::now();
-        auto duration_Strassen = duration_cast<milliseconds>(stop - start);
-        cout << "Tiempo Strassen: \t" << duration_Strassen.count() << " milisegundos\n";
+        auto duration_Strassen = duration_cast<milliseconds>(stop - start).count();
+
+        file << n << "," << duration_On3 << "," << duration_Strassen << "\n";
+        cout << "Matriz " << n << "x" << n << " completada.\n";
     }
+    file.close();
     return 0;
 }
