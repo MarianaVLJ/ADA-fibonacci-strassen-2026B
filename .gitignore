@@ -1,0 +1,8 @@
+# Ignorar binarios y ejecutables compilados de C++
+*.exe
+*.o
+*.out
+
+# Ignorar caché de Python 
+__pycache__/
+*.pyc
